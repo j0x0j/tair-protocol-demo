@@ -1,0 +1,16 @@
+{
+  "name": "tair-validation-protocol-demo",
+  "version": "1.0.0",
+  "description": "Validation game contracts for monitoring protocol",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "author": "Joel Martínez @j0x0j",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "web3-utils": "^1.0.0-beta.33"
+  }
+}
