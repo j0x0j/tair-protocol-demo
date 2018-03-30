@@ -7,13 +7,12 @@ random + stake economic incentive for validating events in the RF spectrum.
 Requires
 --------
 
-* [Oraclize Ethereum Bridge](https://github.com/oraclize/ethereum-bridge) for
-random number generation
+* TruffleJS
 
 Development
 -----------
 
-* Run ethereum-bridge in dev mode `node bridge -H localhost:7545 -a 9 --dev`
+* Create tests for any contract methods the `truffle test`
 
 Protocol Description
 --------------------
