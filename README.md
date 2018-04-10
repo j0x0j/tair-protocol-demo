@@ -8,11 +8,19 @@ Requires
 --------
 
 * TruffleJS
+* Oraclize API
 
 Development
 -----------
 
-* Create tests for any contract methods the `truffle test`
+* Run Ganache
+* Run ethereum bridge `node bridge -H localhost:7545 -a 9 --dev`
+* Create tests for any contract methods
+* Run tests `truffle test`
+* To run with geth in Rinkeby
+```
+geth --syncmode "light" --rinkeby --ws --wsport 8545 --wsaddr 0.0.0.0 --wsorigins "*" --wsapi "eth,web3" console --unlock <address>
+```
 
 Protocol Description
 --------------------

@@ -70,16 +70,32 @@ contract('TairProtocol', function (accounts) {
     const events = contract.allEvents()
 
     const txn1 = await contract.revealMatch(1, 30, +salts[0], { from: accounts[3] })
-    const txn2 = await contract.revealMatch(1, 30, +salts[1], { from: accounts[4] })
-    const txn3 = await contract.revealMatch(1, 29, +salts[2], { from: accounts[5] })
-
+    const round1 = await contract.getRound.call(1)
+    assert.equal(+round1[2].valueOf(), 3)
+    assert.equal(+round1[3].valueOf(), 1)
     assert.equal(txn1.receipt.status, '0x01')
+
+    const txn2 = await contract.revealMatch(1, 30, +salts[1], { from: accounts[4] })
+    const round2 = await contract.getRound.call(1)
+    assert.equal(+round2[3].valueOf(), 2)
     assert.equal(txn2.receipt.status, '0x01')
+
+    const txn3 = await contract.revealMatch(1, 29, +salts[2], { from: accounts[5] })
+    const round3 = await contract.getRound.call(1)
+    assert.equal(+round3[3].valueOf(), 3)
     assert.equal(txn3.receipt.status, '0x01')
 
     const log = await promisifyEventWatcher(events)
     assert.equal(log.event, 'WillCallOraclize')
     events.stopWatching()
+  })
+
+  it('should get round data', async function () {
+    const round = await contract.getRound.call(1)
+    assert.equal(+round[0].valueOf(), 1)
+    assert.equal(+round[1].valueOf(), 2)
+    assert.equal(+round[2].valueOf(), 3)
+    assert.equal(+round[3].valueOf(), 3)
   })
 
   it('should finalize round and select a winner', async function () {

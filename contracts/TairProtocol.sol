@@ -78,7 +78,7 @@ contract TairProtocol is Ownable, usingOraclize {
     require(msg.sender == oraclize_cbAddress());
     require(oraclize_randomDS_proofVerify__returnCode(_queryId, _result, _proof) == 0);
 
-    LogOraclizeResult(_result, _queryId);
+    emit LogOraclizeResult(_result, _queryId);
 
     delete validOraclizeIds[_queryId];
 
@@ -99,8 +99,8 @@ contract TairProtocol is Ownable, usingOraclize {
   * @param roundId the internal id of the Round
   */
   function getRandomBytesForRound(uint roundId) public payable {
-    // delay = 0, number of random bytes = 4, callbackGas = 200000
-    bytes32 queryId = oraclize_newRandomDSQuery(0, 4, 200000);
+    // delay = 0, number of random bytes = 4, callbackGas = 5000000
+    bytes32 queryId = oraclize_newRandomDSQuery(0, 4, 1000000);
 
     validOraclizeIds[queryId] = true;
     // Set the queryId for the Round
@@ -129,7 +129,7 @@ contract TairProtocol is Ownable, usingOraclize {
     address[] memory ballots;
     rounds[roundId] = Round(roundId, 0x0, 0, 0, 0, 0, msg.value, matchIds, ballots);
     numRounds++;
-    RoundCreation(roundId, sample, msg.value);
+    emit RoundCreation(roundId, sample, msg.value);
   }
 
   /**
@@ -158,6 +158,8 @@ contract TairProtocol is Ownable, usingOraclize {
   @param salt used to create the hash
   */
   function revealMatch(uint roundId, uint matchId, uint salt) public {
+    // reveal for an active round
+    require(rounds[roundId].status != 2);
     // check against commit
     require(keccak256(matchId, salt) == rounds[roundId].commits[msg.sender]);
 
@@ -173,7 +175,7 @@ contract TairProtocol is Ownable, usingOraclize {
       rounds[roundId].status = 2;
       // Call Oraclize to generate random number to select a winner
       /* getRandomBytesForRound(roundId); */
-      WillCallOraclize(roundId);
+      emit WillCallOraclize(roundId);
     }
   }
 
@@ -233,7 +235,26 @@ contract TairProtocol is Ownable, usingOraclize {
     // Add balance to winner
     winnerBalances[winner] += rounds[roundId].bounty;
     // @TODO: Slash validators in other matchId sets for this Round
-    RoundValidated(roundId, matchId, winner);
+    emit RoundValidated(roundId, matchId, winner);
     return winner;
+  }
+
+  // ============
+  // GETTERS:
+  // ============
+
+  /**
+  * @dev get data for a specifc round
+  * @param roundId the Round id
+  * @return Round information
+  */
+  function getRound(uint roundId) public constant returns(uint, uint, uint, uint, uint256) {
+    return (
+      rounds[roundId].id,
+      rounds[roundId].status,
+      rounds[roundId].committed,
+      rounds[roundId].revealed,
+      rounds[roundId].bounty
+    );
   }
 }
